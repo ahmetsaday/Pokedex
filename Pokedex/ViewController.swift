@@ -104,6 +104,21 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         }
     }
 
+    //MARK:- Segue function
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == "PokemonDetailVC"{
+            
+            if let detailVC = segue.destination as? PokemonDetailVC{
+                
+                if let poke = sender as? Pokemon{
+                    
+                    detailVC.pokemon = poke
+                }
+            }
+        }
+    }
 
     //MARK: - CollectionView DataSource and Delegate
     
@@ -137,6 +152,15 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
+        var poke: Pokemon!
+        
+        if inSearchMod{
+            poke = FilteredPokemon[indexPath.row]
+        }else{
+            poke = Pokemons[indexPath.row]
+        }
+        
+        performSegue(withIdentifier: "PokemonDetailVC", sender: poke)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
