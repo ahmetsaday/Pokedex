@@ -9,21 +9,46 @@
 import UIKit
 import AVFoundation
 
-class ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+class ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UISearchBarDelegate {
 
     @IBOutlet weak var collectionView: UICollectionView!
-    
+    @IBOutlet weak var searchBar: UISearchBar!
     
     
     var Pokemons = [Pokemon]()
+    var FilteredPokemon = [Pokemon]()
     var musicPlayer: AVAudioPlayer!
+    var inSearchMod = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        searchBar.delegate = self
+        searchBar.returnKeyType = UIReturnKeyType.done
+        
         parsePokemonCSV()
         initAudio()
         
+    }
+    
+    //MARK: - Search functions and UISearchBarDelegate
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        if searchBar.text == nil || searchBar.text == ""{
+            inSearchMod = false
+            collectionView.reloadData()
+            view.endEditing(true)
+        }else{
+            inSearchMod = true
+            let lower = searchBar.text!.lowercased()
+            FilteredPokemon = Pokemons.filter({$0.name.range(of: lower) != nil})
+            collectionView.reloadData()
+        }
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        view.endEditing(true)
     }
     
     //MARK: - Music functions
@@ -83,15 +108,27 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     //MARK: - CollectionView DataSource and Delegate
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int{
-        return Pokemons.count
+        
+        if inSearchMod {
+            return FilteredPokemon.count
+        }else{
+            return Pokemons.count
+        }
     }
 
-    open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell{
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell{
         
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PokeCell", for: indexPath) as? PokeCell{
             
-            let poke = Pokemons[indexPath.row]
-            cell.configureCell(poke)
+            let poke: Pokemon!
+            
+            if inSearchMod{
+                poke = FilteredPokemon[indexPath.row]
+                cell.configureCell(poke)
+            }else{
+                poke = Pokemons[indexPath.row]
+                cell.configureCell(poke)
+            }
             return cell
         }else{
             return UICollectionViewCell()
