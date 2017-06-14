@@ -31,10 +31,31 @@ class PokemonDetailVC: UIViewController {
         
         lbl_name.text = pokemon.name
         
+        let img = UIImage(named: "\(pokemon.pokedexId)")
+        
+        img_main.image = img
+        img_currentEvo.image = img
+        lbl_pokedex.text = "\(pokemon.pokedexId)"
+        
+        
+        pokemon.downloadPokemonDetail {
+            
+            
+            self.updateUI()
+        }
+        
     }
 
     @IBAction func btn_backPressed(_ sender: UIButton) {
         
         dismiss(animated: true, completion: nil)
+    }
+    
+    func updateUI(){
+        lbl_attack.text = pokemon.attack
+        lbl_defense.text = pokemon.defense
+        lbl_height.text = pokemon.height
+        lbl_weight.text = pokemon.weight
+        lbl_type.text = pokemon.type
     }
 }
